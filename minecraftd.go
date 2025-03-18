@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -13,7 +14,7 @@ import (
 )
 
 const (
-	FIFO_FILE = "minecraft.fifo"
+	FIFO_FILE = "minecraftd.fifo"
 )
 
 func main() {
@@ -24,9 +25,14 @@ func main() {
 }
 
 func run() error {
+	if len(os.Args) < 2 {
+		return fmt.Errorf("missing server.jar path, usage: minecraftd <server-jar>")
+	}
+	serverJar := os.Args[1]
+
 	fifo, err := newFifo(FIFO_FILE)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create FIFO: %w", err)
 	}
 	defer fifo.closeAndRemove()
 
@@ -34,11 +40,11 @@ func run() error {
 		stopServer(fifo.w)
 	})
 
-	return runServer(fifo.r)
+	return runServer(fifo.r, serverJar)
 }
 
-func runServer(stdin io.Reader) error {
-	cmd := exec.Command("/usr/bin/java", "-jar", "server.jar", "--nogui")
+func runServer(stdin io.Reader, serverJar string) error {
+	cmd := exec.Command("/usr/bin/java", "-jar", serverJar, "--nogui")
 	cmd.Stdin = stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
