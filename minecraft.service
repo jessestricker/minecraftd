@@ -1,0 +1,12 @@
+[Unit]
+Description=Minecraft Server
+
+[Service]
+ExecStart=/usr/local/bin/minecraftd
+WorkingDirectory=/var/lib/minecraft
+
+# send SIGTERM to main process only
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
