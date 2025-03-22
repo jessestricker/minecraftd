@@ -5,12 +5,9 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
+	"syscall"
 	"time"
-)
-
-const (
-	FIFO_FILE       = "minecraft.stdin"
-	FIFO_FILE_PERMS = 0o600 // u=rw,g=,o=
 )
 
 func main() {
@@ -28,36 +25,59 @@ func main() {
 }
 
 func run(serverCmd []string) error {
-	fifo, err := newFifo(FIFO_FILE, FIFO_FILE_PERMS)
+	srv, err := newServer(serverCmd)
 	if err != nil {
-		return fmt.Errorf("failed to create FIFO: %w", err)
+		return err
 	}
-	defer fifo.closeAndRemove()
+	defer srv.close()
 
 	handleSigterm(func() {
-		stopServer(fifo.w)
+		srv.send("say Stopping server in 3s ...")
+		time.Sleep(3 * time.Second)
+		srv.send("stop")
 	})
 
-	return runServer(fifo.r, serverCmd)
+	return srv.run()
 }
 
-func runServer(stdin io.Reader, serverCmd []string) error {
-	cmd := exec.Command(serverCmd[0], serverCmd[1:]...)
-	cmd.Stdin = stdin
+type server struct {
+	command    []string
+	stdinRead  *os.File
+	stdinWrite *os.File
+}
+
+func newServer(command []string) (*server, error) {
+	stdinRead, stdinWrite, err := os.Pipe()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create stdin pipe: %w", err)
+	}
+	return &server{command, stdinRead, stdinWrite}, nil
+}
+
+func (s server) close() {
+	s.stdinWrite.Close()
+	s.stdinRead.Close()
+}
+
+func (s server) run() error {
+	cmd := exec.Command(s.command[0], s.command[1:]...)
+	cmd.Stdin = s.stdinRead
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
 
-func stopServer(stdin io.Writer) {
-	sendCommand(stdin, "say Stopping server in 3s ...")
-	time.Sleep(3 * time.Second)
-	sendCommand(stdin, "stop")
+func (s server) send(cmd string) error {
+	_, err := io.WriteString(s.stdinWrite, cmd+"\n")
+	return err
 }
 
-func sendCommand(stdin io.Writer, cmd string) {
-	if _, err := io.WriteString(stdin, cmd+"\n"); err != nil {
-		msg := fmt.Sprintln("error: failed to send server command:", err)
-		panic(msg)
-	}
+func handleSigterm(handler func()) {
+	channel := make(chan os.Signal, 1)
+	go func() {
+		<-channel
+		handler()
+		signal.Stop(channel)
+	}()
+	signal.Notify(channel, syscall.SIGTERM)
 }
