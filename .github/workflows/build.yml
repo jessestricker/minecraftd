@@ -1,5 +1,7 @@
-name: Checks
+name: Build
 on:
+  push:
+    branches: [main]
   pull_request:
   workflow_call:
   workflow_dispatch:
@@ -16,3 +18,8 @@ jobs:
           go-version-file: go.mod
       - name: Build
         run: go build -v
+      - name: Upload build output
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: minecraftd
+          path: minecraftd
