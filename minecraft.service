@@ -2,7 +2,7 @@
 Description=Minecraft Server
 
 [Service]
-ExecStart=/usr/local/bin/minecraftd
+ExecStart=/usr/local/bin/minecraftd /usr/bin/java -Xmx1G -Xms1G -jar server.jar --nogui
 WorkingDirectory=/var/lib/minecraft
 
 # send SIGTERM to main process only
