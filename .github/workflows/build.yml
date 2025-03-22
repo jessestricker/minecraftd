@@ -39,8 +39,9 @@ jobs:
           cp minecraftd package/usr/local/bin/
           mkdir --parents package/usr/local/lib/systemd/system/
           cp minecraft.service package/usr/local/lib/systemd/system/
+          pushd package/ && zip -r ../package.zip . && popd
       - name: Upload build output
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: package
-          path: package
+          name: package.zip
+          path: package.zip
