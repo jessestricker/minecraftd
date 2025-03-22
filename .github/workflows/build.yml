@@ -19,7 +19,7 @@ jobs:
         run: |
           install -D minecraftd package/usr/local/bin/minecraftd
           install -D minecraft.service package/usr/local/lib/systemd/system/minecraft.service
-          tar -czvv --owner=0 -f package.tar.gz -C package/ .
+          tar -czvv --owner=0 --group=0 -f package.tar.gz -C package/ .
       - name: Upload build output
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
