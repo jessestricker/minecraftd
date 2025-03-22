@@ -36,7 +36,7 @@ jobs:
         run: |
           set -x
           install -v -D -t package/usr/local/bin/ minecraftd
-          install -v -D -t package/usr/local/lib/systemd/system/ minecraft.service
+          install -v -D -t package/usr/local/lib/systemd/system/ minecraft.service -m 0644
           tar -c -z -v -f package.tar.gz -C package/ .
       - name: Upload build output
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
