@@ -1,36 +1,37 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"os/exec"
-	"os/signal"
-	"sync"
-	"syscall"
 	"time"
 )
 
 const (
-	FIFO_FILE = "minecraftd.fifo"
+	FIFO_FILE       = "minecraft.stdin"
+	FIFO_FILE_PERMS = 0o600 // u=rw,g=,o=
 )
 
 func main() {
-	log.SetPrefix("(minecraftd) ")
-	if err := run(); err != nil {
-		log.Fatalln("error:", err)
+	log.SetPrefix("[minecraftd] ")
+
+	serverCmd := os.Args[1:]
+	if len(serverCmd) == 0 {
+		log.Println("error: missing server command")
+		log.Println("usage: minecraftd <server-cmd ...>")
+		os.Exit(2)
+	}
+
+	if err := run(serverCmd); err != nil {
+		log.Println("error:", err)
+		os.Exit(1)
 	}
 }
 
-func run() error {
-	if len(os.Args) < 2 {
-		return fmt.Errorf("missing server.jar path, usage: minecraftd <server-jar>")
-	}
-	serverJar := os.Args[1]
-
-	fifo, err := newFifo(FIFO_FILE)
+func run(serverCmd []string) error {
+	fifo, err := newFifo(FIFO_FILE, FIFO_FILE_PERMS)
 	if err != nil {
 		return fmt.Errorf("failed to create FIFO: %w", err)
 	}
@@ -40,11 +41,11 @@ func run() error {
 		stopServer(fifo.w)
 	})
 
-	return runServer(fifo.r, serverJar)
+	return runServer(fifo.r, serverCmd)
 }
 
-func runServer(stdin io.Reader, serverJar string) error {
-	cmd := exec.Command("/usr/bin/java", "-jar", serverJar, "--nogui")
+func runServer(stdin io.Reader, serverCmd []string) error {
+	cmd := exec.Command(serverCmd[0], serverCmd[1:]...)
 	cmd.Stdin = stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -63,63 +64,4 @@ func sendCommand(stdin io.Writer, cmd string) {
 	if _, err := io.WriteString(stdin, cmd+"\n"); err != nil {
 		log.Println("error: failed to send server command:", err)
 	}
-}
-
-func handleSigterm(f func()) {
-	sigterms := make(chan os.Signal, 1)
-	signal.Notify(sigterms, syscall.SIGTERM)
-	go func() {
-		<-sigterms
-		f()
-	}()
-}
-
-type fifo struct {
-	path string
-	r    io.ReadCloser
-	w    io.WriteCloser
-}
-
-func newFifo(path string) (fifo, error) {
-	if err := syscall.Mkfifo(path, 0o600); err != nil {
-		return fifo{}, err
-	}
-
-	var wg sync.WaitGroup
-
-	// open read end
-	wg.Add(1)
-	var (
-		r  *os.File
-		re error
-	)
-	go func() {
-		defer wg.Done()
-		r, re = os.OpenFile(path, os.O_RDONLY, 0)
-	}()
-
-	// open write end
-	var we error
-	w, we := os.OpenFile(path, os.O_WRONLY, 0)
-
-	wg.Wait()
-
-	// handle errors
-	if err := errors.Join(re, we); err != nil {
-		if r != nil {
-			r.Close()
-		}
-		if w != nil {
-			w.Close()
-		}
-		return fifo{}, err
-	}
-
-	return fifo{path, r, w}, nil
-}
-
-func (f fifo) closeAndRemove() {
-	f.w.Close()
-	f.r.Close()
-	os.Remove(f.path)
 }
