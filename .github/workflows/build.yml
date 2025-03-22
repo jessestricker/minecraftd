@@ -15,29 +15,11 @@ jobs:
           go-version-file: go.mod
       - name: Build
         run: go build -v
-      - name: Upload build output
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: minecraftd
-          path: minecraftd
-
-  package:
-    name: Package
-    needs: build
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Download build output
-        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
-        with:
-          name: minecraftd
       - name: Package
         run: |
-          set -x
-          install -v -D -t package/usr/local/bin/ minecraftd
-          install -v -D -t package/usr/local/lib/systemd/system/ minecraft.service -m 0644
-          tar -c -z -v -f package.tar.gz -C package/ .
+          install -D minecraftd package/usr/local/bin/minecraftd
+          install -D -m 644 minecraft.service package/usr/local/lib/systemd/system/minecraft.service
+          tar -czvv --owner 0 --group 0 -f package.tar.gz -C package/ .
       - name: Upload build output
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
