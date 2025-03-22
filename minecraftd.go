@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"time"
@@ -15,17 +14,15 @@ const (
 )
 
 func main() {
-	log.SetPrefix("[minecraftd] ")
-
 	serverCmd := os.Args[1:]
 	if len(serverCmd) == 0 {
-		log.Println("error: missing server command")
-		log.Println("usage: minecraftd <server-cmd ...>")
+		fmt.Println("error: missing server command")
+		fmt.Println("usage: minecraftd <server-cmd ...>")
 		os.Exit(2)
 	}
 
 	if err := run(serverCmd); err != nil {
-		log.Println("error:", err)
+		fmt.Println("error:", err)
 		os.Exit(1)
 	}
 }
@@ -53,8 +50,6 @@ func runServer(stdin io.Reader, serverCmd []string) error {
 }
 
 func stopServer(stdin io.Writer) {
-	log.Println("stopping server in 3s ...")
-
 	sendCommand(stdin, "say Stopping server in 3s ...")
 	time.Sleep(3 * time.Second)
 	sendCommand(stdin, "stop")
@@ -62,6 +57,7 @@ func stopServer(stdin io.Writer) {
 
 func sendCommand(stdin io.Writer, cmd string) {
 	if _, err := io.WriteString(stdin, cmd+"\n"); err != nil {
-		log.Println("error: failed to send server command:", err)
+		msg := fmt.Sprintln("error: failed to send server command:", err)
+		panic(msg)
 	}
 }
