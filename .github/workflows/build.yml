@@ -2,12 +2,10 @@ name: Build
 on:
   push:
     branches: [main]
-  pull_request:
-  workflow_call:
   workflow_dispatch:
 jobs:
-  go:
-    name: Go
+  build:
+    name: Build
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -23,3 +21,26 @@ jobs:
         with:
           name: minecraftd
           path: minecraftd
+
+  package:
+    name: Package
+    needs: "build"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Download build output
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        with:
+          name: minecraftd
+      - name: Package
+        run: |
+          mkdir --parents package/usr/local/bin/
+          cp minecraftd package/usr/local/bin/
+          mkdir --parents package/usr/local/lib/systemd/system/
+          cp minecraft.service package/usr/local/lib/systemd/system/
+      - name: Upload build output
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: package
+          path: package
