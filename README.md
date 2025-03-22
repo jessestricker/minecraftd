@@ -4,14 +4,19 @@ A Minecraft server daemon.
 
 ## Setup
 
-1. Download the [Minecraft server](https://www.minecraft.net/download/server) to `/var/lib/minecraft/server.jar`.
-2. Download the `minecraftd-${version}.tar.gz` from the [latest release](https://github.com/jessestricker/minecraftd/releases/latest).
-3. Extract the archive:
-   ```shell
-   sudo tar -xzvf minecraftd-${version}.tar.gz -C /
-   ```
-4. Enable and start the service:
-   ```shell
-   sudo systemctl daemon-reload
-   sudo systemctl enable --now minecraft.service
-   ```
+```bash
+# URL of Minecraft server JAR file, see https://www.minecraft.net/download/server
+$server_url='https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar'
+
+# URL of minecraftd, see https://github.com/jessestricker/minecraftd/releases/latest
+$minecraftd_url='https://github.com/jessestricker/minecraftd/releases/download/v1.1.1/minecraftd-1.1.1.tar.gz'
+
+sudo adduser --system minecraft
+sudo mkdir -p /var/lib/minecraft/
+sudo wget -O /var/lib/minecraft/server.jar "$server_url"
+sudo chown -R minecraft: /var/lib/minecraft/
+
+sudo wget "$minecraftd_url" | sudo tar -xzv -C /
+sudo systemctl daemon-reload
+sudo systemctl enable --now minecraft.service
+```
