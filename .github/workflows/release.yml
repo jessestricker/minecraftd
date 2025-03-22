@@ -23,6 +23,6 @@ jobs:
         with:
           name: package.zip
       - name: Release
-        run: npx --package @semantic-release/exec -- semantic-release
+        run: npx --package @semantic-release/exec --package conventional-changelog-conventionalcommits -- semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
