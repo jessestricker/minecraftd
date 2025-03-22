@@ -34,13 +34,12 @@ jobs:
           name: minecraftd
       - name: Package
         run: |
-          mkdir --parents package/usr/local/bin/
-          cp minecraftd package/usr/local/bin/
-          mkdir --parents package/usr/local/lib/systemd/system/
-          cp minecraft.service package/usr/local/lib/systemd/system/
-          pushd package/ && zip -r ../package.zip . && popd
+          set -x
+          install -v -D -t package/usr/local/bin/ minecraftd
+          install -v -D -t package/usr/local/lib/systemd/system/ minecraft.service
+          tar -c -z -v -f package.tar.gz -C package/ .
       - name: Upload build output
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: package.zip
-          path: package.zip
+          name: package.tar.gz
+          path: package.tar.gz

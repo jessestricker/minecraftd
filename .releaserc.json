@@ -6,13 +6,13 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "mv package.zip 'minecraftd-${nextRelease.version}.zip'"
+        "prepareCmd": "mv package.tar.gz 'minecraftd-${nextRelease.version}.tar.gz'"
       }
     ],
     [
       "@semantic-release/github",
       {
-        "assets": "minecraftd-*.zip"
+        "assets": "minecraftd-*.tar.gz"
       }
     ]
   ]
