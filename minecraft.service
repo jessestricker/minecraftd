@@ -2,6 +2,7 @@
 Description=Minecraft Server
 
 [Service]
+User=minecraft
 ExecStart=/usr/local/bin/minecraftd /usr/bin/java -Xmx1G -Xms1G -jar server.jar --nogui
 WorkingDirectory=/var/lib/minecraft
 
