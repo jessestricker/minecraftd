@@ -6,7 +6,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "mv package.tar.gz 'minecraftd-${nextRelease.version}.tar.gz'"
+        "prepareCmd": "for f in minecraftd-*.tar.gz; do mv $f '${f%.tar.gz}-${nextRelease.version}.tar.gz'; done"
       }
     ],
     [
