@@ -4,8 +4,15 @@ on:
   workflow_call:
 jobs:
   build:
-    name: Build
-    runs-on: ubuntu-24.04
+    name: Build (${{ matrix.arch }})
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            runs-on: ubuntu-24.04
+          - arch: arm64
+            runs-on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -19,9 +26,9 @@ jobs:
         run: |
           install -D minecraftd package/usr/local/bin/minecraftd
           install -D -m 644 minecraft.service package/usr/local/lib/systemd/system/minecraft.service
-          tar -czvv --owner 0 --group 0 -f package.tar.gz -C package/ .
+          tar -czvv --owner 0 --group 0 -f 'minecraftd-${{ matrix.arch }}.tar.gz' -C package/ .
       - name: Upload build output
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: package.tar.gz
-          path: package.tar.gz
+          name: minecraftd-${{ matrix.arch }}.tar.gz
+          path: minecraftd-${{ matrix.arch }}.tar.gz
