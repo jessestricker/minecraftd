@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 func main() {
@@ -32,8 +31,6 @@ func run(serverCmd []string) error {
 	defer srv.close()
 
 	handleSigterm(func() {
-		srv.send("say Stopping server in 3s ...")
-		time.Sleep(3 * time.Second)
 		srv.send("stop")
 	})
 
