@@ -10,21 +10,19 @@ import (
 )
 
 func main() {
-	serverCmd := os.Args[1:]
-	if len(serverCmd) == 0 {
-		fmt.Println("error: missing server command")
-		fmt.Println("usage: minecraftd <server-cmd ...>")
-		os.Exit(2)
-	}
-
-	if err := run(serverCmd); err != nil {
+	if err := run(); err != nil {
 		fmt.Println("error:", err)
 		os.Exit(1)
 	}
 }
 
-func run(serverCmd []string) error {
-	srv, err := newServer(serverCmd)
+func run() error {
+	cfg, err := loadConfig()
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
+
+	srv, err := newServer()
 	if err != nil {
 		return err
 	}
@@ -34,21 +32,20 @@ func run(serverCmd []string) error {
 		srv.send("stop")
 	})
 
-	return srv.run()
+	return srv.run(cfg)
 }
 
 type server struct {
-	command    []string
 	stdinRead  *os.File
 	stdinWrite *os.File
 }
 
-func newServer(command []string) (*server, error) {
+func newServer() (*server, error) {
 	stdinRead, stdinWrite, err := os.Pipe()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create stdin pipe: %w", err)
 	}
-	return &server{command, stdinRead, stdinWrite}, nil
+	return &server{stdinRead, stdinWrite}, nil
 }
 
 func (s server) close() {
@@ -56,8 +53,10 @@ func (s server) close() {
 	s.stdinRead.Close()
 }
 
-func (s server) run() error {
-	cmd := exec.Command(s.command[0], s.command[1:]...)
+func (s server) run(cfg *config) error {
+	args := cfg.serverCommand()
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Dir = cfg.Server.Dir
 	cmd.Stdin = s.stdinRead
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
