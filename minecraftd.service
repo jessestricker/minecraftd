@@ -1,11 +1,9 @@
 [Unit]
-Description=Minecraft Server
+Description=Minecraft Server Daemon
 
 [Service]
 User=minecraft
 ExecStart=/usr/local/bin/minecraftd
-
-# send SIGTERM to main process only
 KillMode=mixed
 
 [Install]
