@@ -21,7 +21,7 @@ type configJava struct {
 	// Memory is the amount of Memory to launch the JVM with.
 	Memory string `toml:"memory"`
 	// ExtraArgs holds additional command line arguments for the JVM.
-	ExtraArgs []string `toml:"extraArgs"`
+	ExtraArgs []string `toml:"extra-args"`
 }
 
 type configServer struct {
@@ -30,7 +30,7 @@ type configServer struct {
 	// Path is the Path to the server JAR file.
 	Path string `toml:"path"`
 	// ExtraArgs holds additional command line arguments for the server.
-	ExtraArgs []string `toml:"extraArgs"`
+	ExtraArgs []string `toml:"extra-args"`
 }
 
 const configFile = "/etc/minecraftd.toml"
