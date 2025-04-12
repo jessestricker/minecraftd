@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -50,6 +51,7 @@ func loadConfig() (*config, error) {
 	f, err := os.Open(configFile)
 	if err != nil {
 		if os.IsNotExist(err) {
+			log.Println("using default config")
 			return &defaultConfig, nil
 		}
 		return nil, err

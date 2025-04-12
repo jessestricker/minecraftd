@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -10,8 +11,11 @@ import (
 )
 
 func main() {
+	log.SetPrefix("[minecraftd] ")
+	log.SetFlags(0)
+
 	if err := run(); err != nil {
-		fmt.Println("error:", err)
+		log.Println("error:", err)
 		os.Exit(1)
 	}
 }
@@ -29,6 +33,7 @@ func run() error {
 	defer srv.close()
 
 	handleSigterm(func() {
+		log.Println("stopping server...")
 		srv.send("stop")
 	})
 
@@ -60,7 +65,16 @@ func (s server) run(cfg *config) error {
 	cmd.Stdin = s.stdinRead
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	return cmd.Run()
+
+	log.Println("starting server...")
+	log.Println("  command line:", cmd.Args)
+	log.Println("  working directory:", cmd.Dir)
+
+	err := cmd.Run()
+
+	log.Println("server stopped")
+
+	return err
 }
 
 func (s server) send(cmd string) error {
