@@ -1,0 +1,9 @@
+[java]
+path = "/usr/bin/java"
+memory = "1G"
+extra-args = []
+
+[server]
+dir = "/var/lib/minecraft"
+path = "server.jar"
+extra-args = []
