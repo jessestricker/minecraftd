@@ -22,7 +22,7 @@ jobs:
       - name: Install apt packages
         run: |
           # sudo apt update
-          # sudo apt install -y
+          sudo apt install -y debhelper
       - name: Build
         run: make
       - name: Test
