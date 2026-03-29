@@ -3,7 +3,7 @@ Description=Minecraft Server Daemon
 
 [Service]
 User=minecraft
-ExecStart=/usr/local/bin/minecraftd
+ExecStart=/usr/lib/minecraftd
 KillMode=mixed
 
 [Install]

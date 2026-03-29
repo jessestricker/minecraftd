@@ -2,6 +2,7 @@ name: Build
 on:
   pull_request:
   workflow_call:
+  workflow_dispatch:
 jobs:
   build:
     name: Build
@@ -18,16 +19,18 @@ jobs:
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version-file: go.mod
-      - name: Build
-        run: go build -v
-      - name: Test
-        run: go test -v
-      - name: Package
+      - name: Install apt packages
         run: |
-          package_file=$(./.github/workflows/package.sh)
-          echo "package_file=$package_file" >> "$GITHUB_ENV"
+          # sudo apt update
+          # sudo apt install -y
+      - name: Build
+        run: make
+      - name: Test
+        run: make test
+      - name: Package
+        run: fakeroot debian/rules binary
       - name: Upload build output
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: ${{ env.package_file }}
-          path: ${{ env.package_file }}
+          name: ../minecraftd*.deb
+          path: ../minecraftd*.deb

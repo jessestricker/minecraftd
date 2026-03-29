@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_OPTIONS = noautodbgsym
+
+%:
+	dh $@
+
+# skip these commands
+override_dh_dwz:
+override_dh_installchangelogs:
+override_dh_installdocs:
