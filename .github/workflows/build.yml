@@ -20,19 +20,18 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install apt packages
-        run: sudo apt-get install -y debhelper
-      - name: Build
-        run: make
-      - name: Test
-        run: make test
+        run: |
+          sudo apt-get install -y debhelper
       - name: Package
-        run: fakeroot debian/rules binary
-      - name: Get package name
-        id: get-package-name
+        run: |
+          fakeroot debian/rules binary
+      - name: Find package
+        id: find-package
         run: |
           echo "name=$(basename ../*.deb)" >> "$GITHUB_OUTPUT"
+          echo "path=$(realpath ../*.deb)" >> "$GITHUB_OUTPUT"
       - name: Upload build output
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: ${{ steps.get-package-name.outputs.name }}
-          path: ${{ github.workspace }}/../${{ steps.get-package-name.outputs.name }}
+          name: ${{ steps.find-package.outputs.name }}
+          path: ${{ steps.find-package.outputs.path }}
