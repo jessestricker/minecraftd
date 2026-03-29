@@ -1,0 +1,6 @@
+/*.debhelper
+/*.substvars
+/changelog
+/debhelper-build-stamp
+/files
+/minecraftd

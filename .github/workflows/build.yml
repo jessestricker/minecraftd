@@ -22,12 +22,3 @@ jobs:
         run: go build -v
       - name: Test
         run: go test -v
-      - name: Package
-        run: |
-          package_file=$(./.github/workflows/package.sh)
-          echo "package_file=$package_file" >> "$GITHUB_ENV"
-      - name: Upload build output
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: ${{ env.package_file }}
-          path: ${{ env.package_file }}
