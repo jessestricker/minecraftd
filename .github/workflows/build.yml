@@ -2,7 +2,6 @@ name: Build
 on:
   pull_request:
   workflow_call:
-  workflow_dispatch:
 jobs:
   build:
     name: Build
@@ -19,19 +18,7 @@ jobs:
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version-file: go.mod
-      - name: Install apt packages
-        run: |
-          sudo apt-get install -y debhelper
-      - name: Package
-        run: |
-          fakeroot debian/rules binary
-      - name: Find package
-        id: find-package
-        run: |
-          echo "name=$(basename ../*.deb)" >> "$GITHUB_OUTPUT"
-          echo "path=$(realpath ../*.deb)" >> "$GITHUB_OUTPUT"
-      - name: Upload build output
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: ${{ steps.find-package.outputs.name }}
-          path: ${{ steps.find-package.outputs.path }}
+      - name: Build
+        run: go build -v
+      - name: Test
+        run: go test -v
