@@ -4,7 +4,8 @@ Priority: optional
 Maintainer: Jesse Stricker <git@jessestricker.de>
 Rules-Requires-Root: no
 Build-Depends:
- debhelper-compat (= 15),
+ debhelper-compat (= 13),
+ dh-sequence-installsysusers,
 Standards-Version: 4.7.2
 Homepage: https://github.com/jessestricker/minecraftd
 

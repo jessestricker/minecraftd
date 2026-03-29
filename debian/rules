@@ -1,9 +1,10 @@
 #!/usr/bin/make -f
 
 export DEB_BUILD_OPTIONS = noautodbgsym
+export GOARCH = $(DEB_HOST_ARCH)
 
 %:
-	dh $@
+	dh $@ --without single-binary
 
 # skip these commands
 override_dh_dwz:

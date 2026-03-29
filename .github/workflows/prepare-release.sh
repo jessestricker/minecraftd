@@ -2,9 +2,15 @@
 
 set -e -u
 
+ARCHITECTURES=(amd64 arm64)
+
 version=$1
 
-for package_file in minecraftd-*.tar.gz; do
-    versioned_package_file=${package_file%.tar.gz}-$version.tar.gz
-    mv "$package_file" "$versioned_package_file"
+# re-create debian/changelog
+rm -f debian/changelog
+EDITOR=true debchange --newversion "$version" --create --empty --package minecraftd --controlmaint ' '
+
+# build packages
+for arch in "${ARCHITECTURES[@]}"; do
+    dpkg-buildpackage --build=binary --host-arch "$arch" --no-sign
 done

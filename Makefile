@@ -1,13 +1,7 @@
-all: minecraftd
+all:
+	go build -o minecraftd
 .PHONY: all
 
-minecraftd:
-	go build -o minecraftd
-
-test:
-	go test -v
-.PHONY: test
-
 clean:
-	go clean -modcache
+	go clean -i -modcache
 .PHONY: clean

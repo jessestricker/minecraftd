@@ -1,1 +1,2 @@
-minecraftd usr/lib
+minecraftd          usr/lib
+minecraftd.toml     etc
