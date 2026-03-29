@@ -23,10 +23,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install apt packages
-        run: >
-          sudo apt-get install -y
-            debhelper
-            binutils-aarch64-linux-gnu
+        run: sudo apt-get install -y debhelper binutils-aarch64-linux-gnu
       - name: Setup pnpm
         uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
         with:
