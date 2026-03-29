@@ -29,8 +29,12 @@ jobs:
         run: make test
       - name: Package
         run: fakeroot debian/rules binary
+      - name: Get package name
+        id: get-package-name
+        run: |
+          echo "name=$(basename ../*.deb)" >> "$GITHUB_OUTPUT"
       - name: Upload build output
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
-          name: ../minecraftd*.deb
-          path: ../minecraftd*.deb
+          name: ${{ steps.get-package-name.outputs.name }}
+          path: ../${{ steps.get-package-name.outputs.name }}
